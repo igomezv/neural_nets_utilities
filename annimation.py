@@ -13,7 +13,7 @@ input_size = 2
 hidden_size = 3
 output_size = 2
 learning_rate = 0.1
-epochs = 20
+epochs = 100
 
 # Initialize weights
 W1 = np.random.randn(input_size, hidden_size)
@@ -31,12 +31,13 @@ def mse_loss(y_true, y_pred):
 def format_matrix_plain(matrix, name):
     rows = [" ".join(["{:.2f}".format(v) for v in row]) for row in matrix]
     matrix_str = "\n".join(rows)
-    return "{} =\n{}".format(name, matrix_str)
+    return "{}: \n{}".format(name, matrix_str)
 
 fig, ax = plt.subplots(figsize=(14, 8))
 
-def add_text(ax, text, position, fontsize=12):
-    ax.text(position[0], position[1], text, horizontalalignment='left', verticalalignment='top', fontsize=fontsize, transform=ax.transAxes)
+def add_text(ax, text, position, fontsize=12, color='black'):
+    ax.text(position[0], position[1], text, horizontalalignment='left', verticalalignment='top', fontsize=fontsize, color=color, transform=ax.transAxes)
+
 
 def draw_nn_diagram(ax):
     # Draw the input layer
@@ -68,13 +69,13 @@ def draw_nn_diagram(ax):
         for j, (x1, y1) in enumerate(hidden_layer):
             line = Line2D([x0, x1], [y0, y1], color='black', linestyle='-', linewidth=1)
             ax.add_line(line)
-            ax.text((x0 + x1) / 2, (y0 + y1) / 2, 'W1_{}{}'.format(i+1, j+1), fontsize=8, color='black')
+            ax.text((x0 + x1) / 2, (y0 + y1 - 0.05*j) / 2, 'W1_{}{}'.format(i+1, j+1), fontsize=8, color='black')
 
     for i, (x0, y0) in enumerate(hidden_layer):
         for j, (x1, y1) in enumerate(output_layer):
             line = Line2D([x0, x1], [y0, y1], color='black', linestyle='-', linewidth=1)
             ax.add_line(line)
-            ax.text((x0 + x1) / 2, (y0 + y1) / 2, 'W2_{}{}'.format(i+1, j+1), fontsize=8, color='black')
+            ax.text((x0 + x1) / 2, (y0 + y1 - 0.05*j) / 2, 'W2_{}{}'.format(i+1, j+1), fontsize=8, color='black')
 
     # Annotate layers
     ax.text(0.1, 0.85, 'Input Layer', horizontalalignment='center', verticalalignment='center', fontsize=10, transform=ax.transAxes)
@@ -116,17 +117,19 @@ def animate(epoch):
     
     add_text(ax, "Epoch {}".format(epoch+1), (0.01, 0.95))
 
-    add_text(ax, format_matrix_plain(X, 'X'), (0.01, 0.80))
-    add_text(ax, format_matrix_plain(W1, 'W1'), (0.15, 0.4))
+    add_text(ax, format_matrix_plain(X, 'X_train'), (0.00, 0.80), fontsize=14, color='green')
+    add_text(ax, format_matrix_plain(W1, 'W1'), (0.10, 0.4))
 
-    add_text(ax, "z1 = X * W1\n" + format_matrix_plain(z1, 'z1'), (0.3, 0.40))
-    add_text(ax, "a1 = sigmoid(z1)\n" + format_matrix_plain(a1, 'a1'), (0.2, 0.15))
-    
-    add_text(ax, format_matrix_plain(W2, 'W2'), (0.40, 0.40))
-    add_text(ax, "z2 = a1 * W2\n" + format_matrix_plain(z2, 'z2'), (0.60, 0.65))
-    add_text(ax, "y_pred = sigmoid(z2)\n" + format_matrix_plain(y_pred, 'y_pred'), (0.60, 0.50))
-    add_text(ax, format_matrix_plain(y, 'y'), (0.60, 0.35))
-    add_text(ax, "Loss = {:.4f}".format(loss), (0.80, 0.20))
+    add_text(ax, "z1 = X * W1\n" + format_matrix_plain(z1, 'z1'), (0.25, 0.40))
+    add_text(ax, "a1 = sigmoid(z1)\n" + format_matrix_plain(a1, 'a1'), (0.40, 0.45))
+
+    add_text(ax, format_matrix_plain(W2, 'W2'), (0.40, 0.25))
+
+
+    add_text(ax, "z2 = a1 * W2\n" + format_matrix_plain(z2, 'z2'), (0.40, 0.10))
+    add_text(ax, "y_pred = sigmoid(z2)\n" + format_matrix_plain(y_pred, 'y_pred'), (0.60, 0.80))
+    add_text(ax, format_matrix_plain(y, 'y_train'), (0.80, 0.80), fontsize=14, color='green')
+    add_text(ax, "Loss = MSE(y_pred, y_train) = {:.4f}".format(loss), (0.60, 0.90), fontsize=14, color='red')
     
     # Draw the neural network diagram
     draw_nn_diagram(ax)
